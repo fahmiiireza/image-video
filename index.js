@@ -20,6 +20,10 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 app.post('/generate-video', async (req, res) => {
   try {
+    const auth = req.headers['authorization'];
+    if (auth !== `Bearer ${process.env.INTERNAL_API_KEY}`) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
     const { base64Image, prompt } = req.body;
 
     if (!base64Image || !prompt) {
