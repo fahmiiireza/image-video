@@ -4,7 +4,7 @@ const { saveAndDownloadVideo } = require('../utils/fileHelpers');
 
 exports.generateVideo = async (req, res) => {
   try {
-    const { base64Image, prompt } = req.body;
+    const { base64Image, prompt, aspectRatio = '16:9' } = req.body;
 
     if (!base64Image || !prompt) {
       return res.status(400).json({ error: 'Missing base64Image or prompt' });
@@ -18,9 +18,9 @@ exports.generateVideo = async (req, res) => {
         mimeType: 'image/png',
       },
       config: {
-        aspectRatio: '16:9',
+        aspectRatio,
         numberOfVideos: 1,
-        durationSeconds: 6,
+        durationSeconds: 5,
         personGeneration: 'allow_adult',
         enhance_prompt: true,
       }
