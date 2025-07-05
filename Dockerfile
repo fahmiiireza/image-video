@@ -1,20 +1,14 @@
-# Use the official Node.js 20 image
-FROM node:20
+FROM node:20-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Add CA certs so HTTPS (like Gemini or Caddy) works
+RUN apk add --no-cache ca-certificates
 
-# Install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Copy the rest of your app
 COPY . .
 
-# Expose port
-EXPOSE 3000
-
-# Start the app
+EXPOSE 3123
 CMD ["node", "server.js"]
