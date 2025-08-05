@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const videoRoutes = require('./routes/videoRoutes');
+const presignedUrlRoutes = require('./routes/presignedUrlRoutes');
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.use(bodyParser.json({ limit: '25mb' }));
 
 // Routes
 app.use('/videos', videoRoutes);
+
+app.use('/presignedUrl', presignedUrlRoutes);
 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
