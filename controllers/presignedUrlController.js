@@ -1,10 +1,8 @@
 require('dotenv').config();
 const crypto = require('crypto');
 
-
 // === global const ===
 const DEFAULT_TTL_SECONDS = 30; //change expiration
-
 
 // === Presigned URL Generator for Worker ===
 function generatePresignedWorkerUrl(key, secretKey, ttlSeconds = DEFAULT_TTL_SECONDS) {
