@@ -1,55 +1,36 @@
 require('dotenv').config();
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const crypto = require('crypto');
 
-// === Cloudflare R2 Config ===
-class S3Config {
-    constructor() {
-        this.accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-        this.accessKey = process.env.CLOUDFLARE_ACCESS_KEY;
-        this.secretKey = process.env.CLOUDFLARE_SECRET_KEY;
-        this.endpoint = `https://${this.accountId}.r2.cloudflarestorage.com`;
-    }
+
+// === global const ===
+const DEFAULT_TTL_SECONDS = 30; //change expiration
+
+
+// === Presigned URL Generator for Worker ===
+function generatePresignedWorkerUrl(key, secretKey, ttlSeconds = DEFAULT_TTL_SECONDS) {
+    const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+
+    const token = crypto
+        .createHmac('sha256', secretKey)
+        .update(key + expires)
+        .digest('hex');
+
+    return `https://file.kodekalabs.com/${key}?expires=${expires}&token=${token}`;
 }
 
-// === R2 Client Wrapper ===
-class R2Client {
-    constructor(config) {
-        this.s3Client = new S3Client({
-            endpoint: config.endpoint,
-            credentials: {
-                accessKeyId: config.accessKey,
-                secretAccessKey: config.secretKey,
-            },
-            region: 'auto',
-            forcePathStyle: true,
-        });
-    }
-
-    async generatePresignedDownloadUrl(bucketName, objectKey, expiration = 900) {
-        const command = new GetObjectCommand({
-            Bucket: bucketName,
-            Key: objectKey,
-        });
-        return await getSignedUrl(this.s3Client, command, { expiresIn: expiration });
-    }
-}
-
-// === Express Handlers ===
+// === Express Handler ===
 exports.generatePresignedDownloadUrl = async (req, res) => {
     try {
         const { key } = req.body;
         if (!key) return res.status(400).json({ error: 'Missing key' });
 
-        const config = new S3Config();
-        const r2Client = new R2Client(config);
-        const bucketName = process.env.CLOUDFLARE_BUCKET_NAME;
-
-        const signedUrl = await r2Client.generatePresignedDownloadUrl(bucketName, key);
+        const secretKey = process.env.CLOUDFLARE_SECRET_KEY;
+        const presignedUrl = generatePresignedWorkerUrl(key, secretKey, DEFAULT_TTL_SECONDS);
 
         return res.status(200).json({
-            downloadUrl: signedUrl,
-            key: key
+            downloadUrl: presignedUrl,
+            expiresInSeconds: 30,
+            key,
         });
     } catch (error) {
         console.error('Error:', error);
