@@ -13,7 +13,7 @@ function generatePresignedWorkerUrl(key, secretKey, ttlSeconds = DEFAULT_TTL_SEC
         .update(key + expires)
         .digest('hex');
 
-    return `https://file.kodekalabs.com/${key}?expires=${expires}&token=${token}`;
+    return `https://kodekalabs-worker.enricoarianthou.workers.dev/${key}?expires=${expires}&token=${token}`;
 }
 
 // === Express Handler ===
