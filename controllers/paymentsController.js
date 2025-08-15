@@ -1,6 +1,9 @@
 const axios = require("axios");
 const { createClient } = require('@supabase/supabase-js');
+const { customAlphabet } = require('nanoid');
 
+
+const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789', 12);
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_API_URL = process.env.MIDTRANS_API_URL;
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -28,9 +31,8 @@ exports.generatePayment = async (req, res) => {
             .single();
 
 
-        const orderId = "ORDER-" + Date.now(); // unique order ID
+        const orderId = "ORDER_" + nanoid(12);
 
-        //TODO: how so the payload from the website didnt show the amount. so just send the product id and server will take the amount from the supabase
         const response = await axios.post(
             MIDTRANS_API_URL,
             {
