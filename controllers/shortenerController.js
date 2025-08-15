@@ -1,10 +1,18 @@
 const { createClient } = require('@supabase/supabase-js');
 
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const SHORTLINK_BASE_URL = process.env.SHORTLINK_BASE_URL;
+
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !SHORTLINK_BASE_URL) {
+    console.error("Missing required environment variables.");
+    process.exit(1);
+}
 // Supabase client
-const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
-);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
 
 // Shorten the link Function
 exports.createShortLink = async (req, res) => {
@@ -41,7 +49,7 @@ exports.createShortLink = async (req, res) => {
             return res.status(500).json({ error: 'Failed to insert data', details: insertError });
         }
 
-        res.json({ short_url: `https://link.kodekalabs.com/${slug}` });
+        res.json({ short_url: `${SHORTLINK_BASE_URL}/${slug}` });
     } catch (err) {
         res.status(500).json({ error: 'Unexpected server error', details: err.message });
     }

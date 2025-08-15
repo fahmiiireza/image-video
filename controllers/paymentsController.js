@@ -1,15 +1,32 @@
 const axios = require("axios");
+const { createClient } = require('@supabase/supabase-js');
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
-const MIDTRANS_API_URL = "https://app.sandbox.midtrans.com/snap/v1/transactions";
+const MIDTRANS_API_URL = process.env.MIDTRANS_API_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !MIDTRANS_SERVER_KEY || !MIDTRANS_API_URL) {
+    console.error("Missing required environment variables.");
+    process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 exports.generatePayment = async (req, res) => {
     try {
-        const { amount, name, email } = req.body;
+        const { productId, name, email } = req.body;
 
-        if (!amount || !name || !email) {
+        if (!productId || !name || !email) {
             return res.status(400).json({ error: "Missing required fields" });
         }
+
+        const { data: product } = await supabase
+            .from("kodeka_products")
+            .select("price")
+            .eq("id", productId)
+            .single();
+
 
         const orderId = "ORDER-" + Date.now(); // unique order ID
 
@@ -19,7 +36,7 @@ exports.generatePayment = async (req, res) => {
             {
                 transaction_details: {
                     order_id: orderId,
-                    gross_amount: amount,
+                    gross_amount: product.price,
                 },
                 customer_details: {
                     first_name: name,

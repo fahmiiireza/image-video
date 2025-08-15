@@ -3,13 +3,13 @@ const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
 // === global const ===
-const WORKER_URL = "https://kodekalabs-worker.enricoarianthou.workers.dev";
 const DEFAULT_TTL_SECONDS = 30; //change expiration
 const CLOUDFLARE_SECRET_KEY = process.env.CLOUDFLARE_SECRET_KEY;
+const WORKER_URL = process.env.WORKER_URL;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !CLOUDFLARE_SECRET_KEY) {
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY || !CLOUDFLARE_SECRET_KEY || !WORKER_URL) {
     console.error("Missing required environment variables.");
     process.exit(1);
 }
