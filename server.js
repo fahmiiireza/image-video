@@ -6,11 +6,14 @@ const presignedUrlRoutes = require('./routes/presignedUrlRoutes');
 const paymentRoutes = require('./routes/paymentsRoutes');
 const shortenerRoutes = require('./routes/shortenerRoutes');
 
+const cors = require("cors");
+
 
 
 dotenv.config();
 
 const app = express();
+app.use(cors());
 const port = process.env.PORT || 3123;
 
 // Global test/health-check route
